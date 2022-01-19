@@ -33,23 +33,60 @@ class Wordle:
         calculates the term frequency to suggest words to use for guessing
     """
 
-    def __init__(self, path):
+    def __init(self):
+        print('call load_lexicon or consider using another constructor')
+
+    def __init__(self, path, export_lexicon=False):
+        self.load_lexicon(path, export_lexicon)
+
+    def load_lexicon(self, path, export_lexicon=False, export_name=None):
         self.word_len = 5
-        self.original = open(path).read() 
-        self.original = [x for x in self.original.split('\n') if len(x) == self.word_len]
-        self.lexicon = self.original.copy()
+
+        with open(path) as f:
+            self.original = f.read() 
+            self.original = [x for x in self.original.split('\n') if len(x) == self.word_len]
+            self.lexicon = self.original.copy()
+
+        if export_lexicon:
+            with open(path, 'w') as f:
+                for word in self.lexicon:
+                    f.write(f'{word}\n')
 
         print(f'Wordle has {len(self.original)} words available.')
 
-    def doesnt_have(self, letter=None):
-        n_words = len(self.lexicon)
-        self.lexicon = [x for x in self.lexicon if not letter in x]
-        print(f'{letter} has removed {n_words - len(self.lexicon)} words.')
+    def doesnt_have(self, letters=None):
+        """
+        Arguments
+        ---------------
+        letters : a string, or array of strings to filter lexicon by
+        """
 
-    def has(self, letter=None):
-        n_words = len(self.lexicon)
-        self.lexicon = [x for x in self.lexicon if letter in x]
-        print(f'{letter} has removed {n_words - len(self.lexicon)} words.')
+        try:
+            n_letters = len(letters)
+        except TypeError:
+            letter = list(letters)
+
+        for l in letters:
+            n_words = len(self.lexicon)
+            self.lexicon = [x for x in self.lexicon if not l in x]
+            print(f'{l} has removed {n_words - len(self.lexicon)} words.')
+
+    def has(self, letters=None):
+        """
+        Arguments
+        ---------------
+        letters : a string, or array of strings to filter lexicon by
+        """
+
+        try:
+            n_letters = len(letters)
+        except TypeError:
+            letter = list(letters)
+
+        for l in letters:
+            n_words = len(self.lexicon)
+            self.lexicon = [x for x in self.lexicon if l in x]
+            print(f'{l} has removed {n_words - len(self.lexicon)} words.')
 
     def has_at(self, letter=None, at=None):
         n_words = len(self.lexicon)
@@ -64,11 +101,23 @@ class Wordle:
         print(output)
 
     def term_frequency(self):
+        """
+        This function gets the current lexicon's term frequency and then displays the most
+        'valuable' words based on non-repeating high tf. This helps elimates words from
+        the lexicon e.g. if you guess 'fuzzy' and wordle tells you the 'z' is nowhere in
+        the word, that isn't very helpful, however if a letter with a high tf is nowhere
+        in the word then you can elimate a large number of possibilites.
+        """
+        
         term_count = len(self.lexicon) * self.word_len
+        # count each term and convert it to a tf
         freq = Counter()
         for word in self.lexicon:
             freq.update(word)
+        freq = {k: v/term_count for k,v in freq.items()}
 
+        # calculate how "valuable" each word is in terms of the frequency of letters it contains
+        # this should help us narrow down letters e.g. 'arose' has more common letters than 'kudzu'
         self.freq = {x:0 for x in self.lexicon}
         for key in self.freq.keys():
             value = 0
@@ -80,8 +129,4 @@ class Wordle:
 
         self.freq = sorted(self.freq, key=self.freq.get)
         print(self.freq[-5:])
-
-
-
-
 
