@@ -54,6 +54,9 @@ class Wordle:
 
         print(f'Wordle has {len(self.original)} words available.')
 
+    def reset(self):
+        self.lexicon = self.original.copy()
+
     def doesnt_have(self, letters=None):
         """
         Arguments
@@ -71,22 +74,16 @@ class Wordle:
             self.lexicon = [x for x in self.lexicon if not l in x]
             print(f'{l} has removed {n_words - len(self.lexicon)} words.')
 
-    def has(self, letters=None):
+    def has(self, letter=None, not_at=None):
         """
         Arguments
         ---------------
-        letters : a string, or array of strings to filter lexicon by
+        letter : string, character the word has
+        not_at : int, which position the letter is not at
         """
-
-        try:
-            n_letters = len(letters)
-        except TypeError:
-            letter = list(letters)
-
-        for l in letters:
-            n_words = len(self.lexicon)
-            self.lexicon = [x for x in self.lexicon if l in x]
-            print(f'{l} has removed {n_words - len(self.lexicon)} words.')
+        n_words = len(self.lexicon)
+        self.lexicon = [x for x in self.lexicon if letter in x and x[not_at] != letter]
+        print(f'{letter} has removed {n_words - len(self.lexicon)} words.')
 
     def has_at(self, letter=None, at=None):
         n_words = len(self.lexicon)
