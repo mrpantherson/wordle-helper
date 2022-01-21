@@ -62,6 +62,9 @@ class Wordle:
         print(f'Wordle has {len(self.original)} words available.')
 
     def reset(self):
+        """
+        If you are playing a new puzzle (or messed up the clues) use this to rest dict
+        """
         self.lexicon = self.original.copy()
 
     def doesnt_have(self, letters=None):
@@ -81,23 +84,28 @@ class Wordle:
             self.lexicon = [x for x in self.lexicon if not l in x]
             print(f'{l} has removed {n_words - len(self.lexicon)} words.')
 
-    def has(self, letter=None, not_at=None):
+    def has(self, letter=None, *, at=None, not_at=None):
         """
         Arguments
         ---------------
         letter : string, character the word has
-        not_at : int, which position the letter is not at
+        at : int, which position the letter is (green)
+        not_at : int, which position the letter is not at (yellow)
         """
-        n_words = len(self.lexicon)
-        self.lexicon = [x for x in self.lexicon if letter in x and x[not_at] != letter]
-        print(f'{letter} has removed {n_words - len(self.lexicon)} words.')
 
-    def has_at(self, letter=None, at=None):
         n_words = len(self.lexicon)
-        self.lexicon = [x for x in self.lexicon if x[at] == letter]
+
+        if not_at is not None:
+            self.lexicon = [x for x in self.lexicon if letter in x and x[not_at] != letter]
+        else:
+            self.lexicon = [x for x in self.lexicon if x[at] == letter]
+
         print(f'{letter} has removed {n_words - len(self.lexicon)} words.')
 
     def whats_left(self):
+        """
+        Print all possible remaining words
+        """
         print(self.lexicon)
 
     def term_frequency(self):
