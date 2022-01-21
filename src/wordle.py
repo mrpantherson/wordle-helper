@@ -33,14 +33,21 @@ class Wordle:
         calculates the term frequency to suggest words to use for guessing
     """
 
-    def __init(self):
+    def __init__(self):
         print('call load_lexicon or consider using another constructor')
 
-    def __init__(self, path, export_lexicon=False):
-        self.load_lexicon(path, export_lexicon)
+    def __init__(self, path, export_lexicon=False, word_len=5):
+        self.load_lexicon(path, export_lexicon, word_len)
 
-    def load_lexicon(self, path, export_lexicon=False, export_name=None):
-        self.word_len = 5
+    def load_lexicon(self, path, export_lexicon=False, word_len=5):
+        """
+        Arguments
+        --------------
+        path : dir/filename of dictionary to be used
+        export_lexicon : flag to see if worldle should export trimmed dictionary
+        word_len : how long the words are in the puzzle
+        """
+        self.word_len = word_len
 
         with open(path) as f:
             self.original = f.read() 
@@ -92,10 +99,6 @@ class Wordle:
 
     def whats_left(self):
         print(self.lexicon)
-
-    def check_letter_at(self, letter=None, at=None):
-        output = [x for x in self.lexicon if x[at] == letter]
-        print(output)
 
     def term_frequency(self):
         """
