@@ -138,3 +138,25 @@ class Wordle:
         self.freq = sorted(self.freq, key=self.freq.get)
         print(self.freq[-5:])
 
+    def guess(self, word, results):
+        """
+        Automate inputs, just put in what you guessed along with the results from the puzzle
+        E.g. word.guess('slimy', 'bbygg')
+        
+        Arguments
+        ---------------
+        word : what word was guessed
+        
+        results : the color results for each letter (b=black, g=green, y=yellow)
+        """
+
+        for i, (letter, color) in enumerate(zip(word, results)):
+            if color == 'b':
+                self.doesnt_have(letter)
+            elif color == 'g':
+                self.has(letter, at=i)
+            elif color == 'y':
+                self.has(letter, not_at=i)
+            else:
+                print('Invalid result passed')                
+
