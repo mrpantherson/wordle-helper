@@ -48,6 +48,7 @@ class Wordle:
         word_len : how long the words are in the puzzle
         """
         self.word_len = word_len
+        self.correct = []
 
         with open(path) as f:
             self.original = f.read() 
@@ -66,6 +67,7 @@ class Wordle:
         If you are playing a new puzzle (or messed up the clues) use this to rest dict
         """
         self.lexicon = self.original.copy()
+        self.correct = []
 
     def doesnt_have(self, letters=None):
         """
@@ -80,9 +82,16 @@ class Wordle:
             letter = list(letters)
 
         for l in letters:
+            # bit of a hack, but if you guess a letter multiple times this remove function
+            # could elimate valid words, would be best to keep track of position/value of
+            # correct guesses and compare that to items being removed
+            if l in self.correct:
+                print(f'{l} already guessed, skipping')
+                continue
+
             n_words = len(self.lexicon)
             self.lexicon = [x for x in self.lexicon if not l in x]
-            print(f'{l} has removed {n_words - len(self.lexicon)} words.')
+            print(f'{l} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
 
     def has(self, letter=None, *, at=None, not_at=None):
         """
@@ -99,8 +108,9 @@ class Wordle:
             self.lexicon = [x for x in self.lexicon if letter in x and x[not_at] != letter]
         else:
             self.lexicon = [x for x in self.lexicon if x[at] == letter]
+            self.correct.append(letter)
 
-        print(f'{letter} has removed {n_words - len(self.lexicon)} words.')
+        print(f'{letter} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
 
     def whats_left(self):
         """
@@ -158,5 +168,9 @@ class Wordle:
             elif color == 'y':
                 self.has(letter, not_at=i)
             else:
-                print('Invalid result passed')                
+                print('Invalid result passed')
+
+        print('\nTry one of the following to narrow down choices')
+        self.term_frequency()
+             
 
