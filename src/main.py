@@ -2,6 +2,7 @@ import os
 import wordle
 
 path = os.path.join('../data', 'dict-wordle.txt')
-word = wordle.Wordle(path, export_lexicon=False)
+cpath = os.path.join('../data', 'dict-common.txt')
+word = wordle.Wordle(path, cpath, export_lexicon=False)
 
 word.term_frequency()

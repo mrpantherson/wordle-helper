@@ -16,6 +16,10 @@ class Wordle:
         words that the object is considering, functions remove from this
     word_len : int
         length of words in the puzzle
+    correct : array[str]
+        keep track of correctly guessed letters so we don't accidentally remove them
+    common : array[str]
+        list of common words from Google's n-gram frequency analysis
 
     Methods
     -----------------
@@ -26,7 +30,7 @@ class Wordle:
     has_at(letter=None, at=None)
         removes words that do not have the letter at the specified index
     whats_left()
-        print the remaining words
+        print the remaining words (full or common only)
     check_letter_at(letter=None, at=None)
         similar to has_at, but only prints the words that have a letter at the specified index
     term_frequency()
@@ -36,10 +40,10 @@ class Wordle:
     def __init__(self):
         print('call load_lexicon or consider using another constructor')
 
-    def __init__(self, path, export_lexicon=False, word_len=5):
-        self.load_lexicon(path, export_lexicon, word_len)
+    def __init__(self, path, cpath, export_lexicon=False, word_len=5):
+        self.load_lexicon(path, cpath, export_lexicon, word_len)
 
-    def load_lexicon(self, path, export_lexicon=False, word_len=5):
+    def load_lexicon(self, path, common_path, export_lexicon=False, word_len=5):
         """
         Arguments
         --------------
@@ -49,17 +53,22 @@ class Wordle:
         """
         self.word_len = word_len
         self.correct = []
-
+        
         with open(path) as f:
             self.original = f.read() 
             self.original = [x for x in self.original.split('\n') if len(x) == self.word_len]
             self.lexicon = self.original.copy()
 
+        with open(common_path) as f:
+            self.common = f.read() 
+            self.common = [x for x in self.common.split('\n') if len(x) == self.word_len]
+            self.common_original = self.common.copy()
+
         if export_lexicon:
             with open(path, 'w') as f:
                 for word in self.lexicon:
                     f.write(f'{word}\n')
-
+        
         print(f'Wordle has {len(self.original)} words available.')
 
     def reset(self):
@@ -67,6 +76,7 @@ class Wordle:
         If you are playing a new puzzle (or messed up the clues) use this to rest dict
         """
         self.lexicon = self.original.copy()
+        self.common = self.common_original.copy()
         self.correct = []
 
     def doesnt_have(self, letters=None):
@@ -91,6 +101,7 @@ class Wordle:
 
             n_words = len(self.lexicon)
             self.lexicon = [x for x in self.lexicon if not l in x]
+            self.common = [x for x in self.common if not l in x]
             print(f'{l} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
 
     def has(self, letter=None, *, at=None, not_at=None):
@@ -106,17 +117,22 @@ class Wordle:
 
         if not_at is not None:
             self.lexicon = [x for x in self.lexicon if letter in x and x[not_at] != letter]
+            self.common = [x for x in self.common if letter in x and x[not_at] != letter]
         else:
             self.lexicon = [x for x in self.lexicon if x[at] == letter]
+            self.common = [x for x in self.common if x[at] == letter]
             self.correct.append(letter)
 
         print(f'{letter} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
 
-    def whats_left(self):
+    def whats_left(self, common_only=True):
         """
-        Print all possible remaining words
+        Print all possible remaining words, or just the common ones
         """
-        print(self.lexicon)
+        if common_only:
+            print(self.common)
+        else:
+            print(self.lexicon)
 
     def term_frequency(self):
         """
@@ -170,7 +186,6 @@ class Wordle:
             else:
                 print('Invalid result passed')
 
-        print('\nTry one of the following to narrow down choices')
+        print('\nTry one of the following to narrow down choices]')
         self.term_frequency()
-             
 
