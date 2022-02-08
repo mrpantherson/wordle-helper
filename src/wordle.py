@@ -150,6 +150,10 @@ class Wordle:
             freq.update(word)
         freq = {k: v/term_count for k,v in freq.items()}
 
+        # guessing letters we already have correct will not improve our position
+        for letter in self.correct:
+            freq[letter] = 0
+
         # calculate how "valuable" each word is in terms of the frequency of letters it contains
         # this should help us narrow down letters e.g. 'arose' has more common letters than 'kudzu'
         self.freq = {x:0 for x in self.lexicon}
