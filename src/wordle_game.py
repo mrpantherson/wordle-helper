@@ -8,6 +8,8 @@ class WordleGame:
     """
     """
 
+    win_pattern = 'ggggg'
+
     def __init__(self, secret_word):
         """
         """

@@ -1,20 +1,23 @@
 import os
-import wordle
-import wordle_game as game
+from wordle_solver import WordleSolver
+from wordle_game import WordleGame
 
-
+answer = 'alarm'
 path = os.path.join('../data', 'dict-wordle.txt')
 cpath = os.path.join('../data', 'dict-common.txt')
 
-word = wordle.Wordle(path, cpath, export_lexicon=False)
-game = game.WordleGame('sharp')
+word = WordleSolver(path, cpath, export_lexicon=False)
 
-for i in range(6):
-    guess_word = word.freq[-1]
-    result = game.guess(guess_word)
+if answer:
+    game = WordleGame(answer)
+    word.reset()
 
-    if result == 'ggggg':
-        print(f'you won with {guess_word} in {game.guesses} tries!')
-        break
+    for i in range(6):
+        guess_word = word.common[-1]
+        result = game.guess(guess_word)
 
-    word.guess(guess_word, result)
+        if result == game.win_pattern:
+            print(f'you won with {guess_word} in {game.guesses} tries!')
+            break
+
+        word.guess(guess_word, result)

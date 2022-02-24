@@ -3,7 +3,8 @@ from collections import Counter
 """ This is a tool to help solve Wordle puzzles
 """
 
-class Wordle:
+
+class WordleSolver:
 
     """
     A simple wordle helper
@@ -53,22 +54,25 @@ class Wordle:
         """
         self.word_len = word_len
         self.correct = []
-        
+        self.freq = []
+
         with open(path) as f:
-            self.original = f.read() 
-            self.original = [x for x in self.original.split('\n') if len(x) == self.word_len]
+            self.original = f.read()
+            self.original = [x for x in self.original.split(
+                '\n') if len(x) == self.word_len]
             self.lexicon = self.original.copy()
 
         with open(common_path) as f:
-            self.common = f.read() 
-            self.common = [x for x in self.common.split('\n') if len(x) == self.word_len]
+            self.common = f.read()
+            self.common = [x for x in self.common.split(
+                '\n') if len(x) == self.word_len]
             self.common_original = self.common.copy()
 
         if export_lexicon:
             with open(path, 'w') as f:
                 for word in self.lexicon:
                     f.write(f'{word}\n')
-        
+
         print(f'Wordle has {len(self.original)} words available.')
 
     def reset(self):
@@ -78,6 +82,7 @@ class Wordle:
         self.lexicon = self.original.copy()
         self.common = self.common_original.copy()
         self.correct = []
+        self.freq = []
 
     def doesnt_have(self, letters=None):
         """
@@ -102,7 +107,8 @@ class Wordle:
             n_words = len(self.lexicon)
             self.lexicon = [x for x in self.lexicon if not l in x]
             self.common = [x for x in self.common if not l in x]
-            print(f'{l} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
+            print(
+                f'{l} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
 
     def has(self, letter=None, *, at=None, not_at=None):
         """
@@ -116,14 +122,17 @@ class Wordle:
         n_words = len(self.lexicon)
 
         if not_at is not None:
-            self.lexicon = [x for x in self.lexicon if letter in x and x[not_at] != letter]
-            self.common = [x for x in self.common if letter in x and x[not_at] != letter]
+            self.lexicon = [
+                x for x in self.lexicon if letter in x and x[not_at] != letter]
+            self.common = [
+                x for x in self.common if letter in x and x[not_at] != letter]
         else:
             self.lexicon = [x for x in self.lexicon if x[at] == letter]
             self.common = [x for x in self.common if x[at] == letter]
             self.correct.append(letter)
 
-        print(f'{letter} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
+        print(
+            f'{letter} - removed {n_words - len(self.lexicon):<5} {len(self.lexicon)} remaining.')
 
     def whats_left(self, common_only=True):
         """
@@ -142,13 +151,13 @@ class Wordle:
         the word, that isn't very helpful, however if a letter with a high tf is nowhere
         in the word then you can elimate a large number of possibilites.
         """
-        
+
         term_count = len(self.lexicon) * self.word_len
         # count each term and convert it to a tf
         freq = Counter()
         for word in self.lexicon:
             freq.update(word)
-        freq = {k: v/term_count for k,v in freq.items()}
+        freq = {k: v/term_count for k, v in freq.items()}
 
         # guessing letters we already have correct will not improve our position
         for letter in self.correct:
@@ -156,7 +165,7 @@ class Wordle:
 
         # calculate how "valuable" each word is in terms of the frequency of letters it contains
         # this should help us narrow down letters e.g. 'arose' has more common letters than 'kudzu'
-        self.freq = {x:0 for x in self.lexicon}
+        self.freq = {x: 0 for x in self.lexicon}
         for key in self.freq.keys():
             value = 0
             # set is an easy way to remove duplicates, if we don't remove these then words with
@@ -172,11 +181,11 @@ class Wordle:
         """
         Automate inputs, just put in what you guessed along with the results from the puzzle
         E.g. word.guess('slimy', 'bbygg')
-        
+
         Arguments
         ---------------
         word : what word was guessed
-        
+
         results : the color results for each letter (b=black, g=green, y=yellow)
         """
 
@@ -192,4 +201,3 @@ class Wordle:
 
         print('\nTry one of the following to narrow down choices]')
         self.term_frequency()
-
